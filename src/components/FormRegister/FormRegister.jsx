@@ -1,13 +1,13 @@
 import s from './FormRegister.module.scss';
 import { memo } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 
 import FormField from 'components/FormField';
+import Button from 'components/Button';
 
 const FormRegister = memo(props => (
   <form onSubmit={props.onSubmit} noValidate>
     <FormField
-      key={uuidv4()}
+      key="name"
       labelText="Name"
       fieldType="text"
       fieldName="name"
@@ -18,7 +18,7 @@ const FormRegister = memo(props => (
     />
 
     <FormField
-      key={uuidv4()}
+      key="surname"
       labelText="Surname"
       fieldType="text"
       fieldName="surname"
@@ -29,7 +29,7 @@ const FormRegister = memo(props => (
     />
 
     <FormField
-      key={uuidv4()}
+      key="age"
       labelText="Age"
       fieldType="number"
       fieldName="age"
@@ -40,7 +40,7 @@ const FormRegister = memo(props => (
     />
 
     <FormField
-      key={uuidv4()}
+      key="email"
       labelText="Email"
       fieldType="email"
       fieldName="email"
@@ -51,7 +51,7 @@ const FormRegister = memo(props => (
     />
 
     <FormField
-      key={uuidv4()}
+      key="password"
       labelText="Password"
       fieldType="password"
       fieldName="password"
@@ -61,7 +61,7 @@ const FormRegister = memo(props => (
       fieldSize="big"
     />
 
-    <button type="submit">Send</button>
+    <Button type="submit" text="Send" name="add" />
   </form>
 ));
 
