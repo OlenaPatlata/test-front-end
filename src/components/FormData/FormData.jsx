@@ -1,31 +1,31 @@
 import { memo, useCallback, useState } from 'react';
 import update from 'immutability-helper';
-import * as yup from 'yup';
 import s from './FormData.module.scss';
 import FormRegister from 'components/FormRegister';
+import {
+  checkAgeUser,
+  createUser,
+  loginUser,
+  findByEmailUser,
+  logoutUser,
+} from 'services/api';
+import { toast } from 'react-toastify';
+import schemas from './schemas';
 
-const formSchema = yup.object().shape({
-  name: yup.string().required(),
-  surname: yup.string().required(),
-  email: yup.string().email().required(),
-  password: yup.string().min(8).required(),
-  age: yup.number().required(),
-});
-
-const FormData = memo(() => {
+const FormData = memo(({ type }) => {
   const [values, setValues] = useState({
     name: '',
     surname: '',
+    age: '',
     email: '',
     password: '',
-    age: '',
   });
   const [errors, setErrors] = useState({
     name: false,
     surname: false,
+    age: false,
     email: false,
     password: false,
-    age: false,
   });
 
   const onFieldChange = useCallback((fieldName, value) => {
@@ -37,18 +37,65 @@ const FormData = memo(() => {
       })
     );
   }, []);
+  // const onFieldReset = () => {
+  //   const keys = Object.keys(values);
+  //   for (const key of keys) {
+  //     setValues((values[key] = ''));
+  //   }
+  //   console.log(values);
+  // };
 
   const onSubmit = useCallback(
     async event => {
       event.preventDefault();
-      const isFormValid = await formSchema.isValid(values, {
-        abortEarly: false,
-      });
+      if (type === 'checkAge') {
+        const isFormValid = await schemas.checkAge.isValid(
+          {
+            name: values.name,
+            surname: values.surname,
+            age: Number(values.age),
+          },
+          {
+            abortEarly: false,
+          }
+        );
+        console.log(isFormValid);
+        if (isFormValid) {
+          const result = await checkAgeUser({
+            name: values.name,
+            surname: values.surname,
+            age: Number(values.age),
+          });
+          toast.success(result.message);
+        }
+      }
+      if (type === 'register') {
+        const isFormValid = await schemas.register.isValid(values, {
+          abortEarly: false,
+        });
+        if (isFormValid) {
+          const result = await createUser({
+            ...values,
+            age: Number(values.age),
+          });
+          toast.success(result.message);
+        }
+      }
+      if (type === 'login') {
+        const isFormValid = await schemas.login.isValid(values, {
+          abortEarly: false,
+        });
+        if (isFormValid) {
+          await loginUser({
+            email: values.email,
+            password: values.password,
+          });
+          toast.success('You have logged');
+        }
 
-      if (isFormValid) {
-        console.log('Form is legit');
+        // onFieldReset();
       } else {
-        formSchema.validate(values, { abortEarly: false }).catch(err => {
+        schemas[type].validate(values, { abortEarly: false }).catch(err => {
           const errors = err.inner.reduce((acc, error) => {
             return {
               ...acc,
@@ -73,6 +120,7 @@ const FormData = memo(() => {
         errors={errors}
         onFieldChange={onFieldChange}
         onSubmit={onSubmit}
+        type={type}
       />
     </div>
   );
